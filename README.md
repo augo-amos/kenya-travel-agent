@@ -1,128 +1,80 @@
 
-# Kenya Travel AI Agent
+# Kenya Travel Agent
 
-An intelligent travel assistant for Kenyan tourism, built with Python and LangChain.
+An AI-powered travel assistant for Kenyan tourism destinations. This project scrapes travel data from various Kenyan tourism websites and uses LangChain with HuggingFace models to provide intelligent responses about Kenyan travel destinations.
 
 ## Features
 
-- **Web Scraping**: Collect data from travel websites, Wikipedia, and social media
-- **RAG System**: Retrieval-Augmented Generation for accurate responses
-- **Multiple LLM Options**: Use OpenAI or free HuggingFace models
-- **Conversation Memory**: Remembers user preferences and history
-- **Multiple Interfaces**: Streamlit web app, Flask API, CLI
-- **Docker Support**: Easy deployment
+- **Web Scrapers**: Collect data from Kenyan tourism websites
+- **Vector Database**: FAISS-based storage for efficient similarity search
+- **AI-Powered Q&A**: Flan-T5 model for natural language responses
+- **Interactive Chat**: Command-line interface for conversations
+- **Multi-Destination Support**: Covers Masai Mara, Diani Beach, Amboseli, and more
 
-## Quick Start
+## Tech Stack
 
-### Prerequisites
+- Python 3.12
+- LangChain 0.1.0
+- HuggingFace Transformers
+- FAISS Vector Store
+- Selenium & BeautifulSoup for scraping
+- Streamlit (optional, for UI)
 
-- Python 3.8+
-- Docker (optional)
-- OpenAI API key (optional, can use free HuggingFace models)
+## Prerequisites
 
-### Installation
+- Python 3.12+
+- pip (Python package manager)
+- Git
+
+## Installation
 
 1. **Clone the repository**
-```bash
-git clone https://github.com/yourusername/kenya-travel-agent.git
-cd kenya-travel-agent
-```
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/kenya-travel-agent.git
+   cd kenya-travel-agent
+   ```
 
-2. **Set up virtual environment**
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
+2. **Create a virtual environment**
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
 3. **Install dependencies**
-```bash
-pip install -r requirements.txt
-```
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-4. **Set up environment variables**
-```bash
-cp .env.example .env
-# Edit .env with your API keys
-```
+## Data Collection
 
-### Data Collection
-
-Run the scrapers to collect Kenyan travel data:
+Run the scrapers to collect travel data:
 
 ```bash
-python scrapers/run_scrapers.py
+# Basic web scraping
+python3 scrapers/run_scrapers.py
+
+# Advanced scraping with Selenium
+python3 scrapers/run_advanced_scraper.py
 ```
 
-This will:
-- Scrape travel websites
-- Collect Wikipedia articles
-- Process and clean the data
-- Save to `data/processed/`
+## Build the Knowledge Base
 
-### Create Vector Database
+Create embeddings and vector store:
 
 ```bash
-python models/vector_store.py
+python3 models/vector_store.py
 ```
 
-### Run the Agent
+## Run the Travel Agent
 
-**Option 1: Command Line Interface**
+### Interactive Mode
 ```bash
-python agent/travel_agent.py --llm huggingface
+python3 agent/travel_agent.py
 ```
 
-**Option 2: Streamlit Web App**
+### Single Query Mode
 ```bash
-streamlit run deployment/streamlit_app.py
-```
-
-**Option 3: Flask API**
-```bash
-python deployment/flask_api.py
-```
-
-### Docker Deployment
-
-```bash
-cd deployment
-chmod +x deploy.sh
-./deploy.sh
-```
-
-## Usage Examples
-
-### Web Interface
-
-Access the Streamlit app at `http://localhost:8501`
-
-### API Endpoints
-
-```python
-import requests
-
-# Initialize session
-response = requests.post('http://localhost:5000/init', 
-                        json={'user_id': 'tourist123'})
-session_id = response.json()['session_id']
-
-# Ask a question
-response = requests.post('http://localhost:5000/chat', json={
-    'session_id': session_id,
-    'message': 'Best time to visit Masai Mara?'
-})
-
-print(response.json()['response'])
-```
-
-### Python Library
-
-```python
-from agent.travel_agent import KenyaTravelAgent
-
-agent = KenyaTravelAgent(llm_type='huggingface')
-result = agent.ask('Tell me about Diani Beach')
-print(result['answer'])
+python3 agent/travel_agent.py --query "Tell me about Masai Mara"
 ```
 
 ## Project Structure
@@ -130,116 +82,55 @@ print(result['answer'])
 ```
 kenya-travel-agent/
 ├── agent/
-│   ├── travel_agent.py      # Main agent logic
-│   └── memory_manager.py     # Conversation memory
+│   └── travel_agent.py          # Main AI agent
 ├── scrapers/
-│   ├── basic_scraper.py      # Basic web scraping
-│   ├── advanced_scraper.py   # Selenium scraping
-│   ├── data_processor.py     # Data cleaning
-│   └── run_scrapers.py       # Master scraper
+│   ├── run_scrapers.py          # Basic scrapers
+│   └── advanced_scraper.py       # Selenium scrapers
 ├── models/
-│   └── vector_store.py        # Embeddings and vector DB
-├── deployment/
-│   ├── streamlit_app.py       # Web interface
-│   ├── flask_api.py           # API backend
-│   ├── Dockerfile             # Docker config
-│   ├── docker-compose.yml     # Multi-container setup
-│   ├── deploy.sh              # Deployment script
-│   └── monitor.py              # Monitoring tool
-├── tests/
-│   └── test_agent.py          # Unit tests
+│   └── vector_store.py           # Vector DB management
 ├── data/
-│   ├── raw/                    # Raw scraped data
-│   ├── processed/              # Cleaned data
-│   └── embeddings/             # Vector store
+│   ├── raw/                      # Scraped data
+│   ├── processed/                 # Cleaned data
+│   └── embeddings/                # FAISS indices
 ├── requirements.txt
+├── .gitignore
 └── README.md
 ```
 
 ## Configuration
 
-### Environment Variables
-
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `OPENAI_API_KEY` | OpenAI API key | For OpenAI models |
-| `HUGGINGFACEHUB_API_TOKEN` | HuggingFace token | Optional |
-| `FLASK_SECRET_KEY` | Flask session key | For API |
-
-### LLM Options
-
-- **OpenAI**: Better quality, requires API key
-- **HuggingFace**: Free, runs locally, slower
-
-## Monitoring
-
-Run the monitoring tool:
+Create a `.env` file for environment variables:
 
 ```bash
-python deployment/monitor.py
+# Optional: API keys if using OpenAI
+OPENAI_API_KEY=your_key_here
 ```
-
-This provides:
-- Health checks
-- Response time metrics
-- Error tracking
-- Performance reports
 
 ## Testing
 
-Run the test suite:
-
 ```bash
-python -m unittest tests/test_agent.py
+# Test the agent
+python3 agent/travel_agent.py --query "What's the best time to visit Amboseli?"
 ```
-
-Or run with coverage:
-
-```bash
-pip install coverage
-coverage run -m unittest tests/test_agent.py
-coverage report
-```
-
-## Production Deployment
-
-### Using Docker Compose
-
-```bash
-cd deployment
-docker-compose up -d
-```
-
-### Manual Deployment
-
-1. Set up a production server (AWS, DigitalOcean, etc.)
-2. Install Docker and Docker Compose
-3. Clone the repository
-4. Set up environment variables
-5. Run `./deploy.sh`
-
-### Scaling Considerations
-
-- Use Redis for session management
-- Implement rate limiting
-- Add load balancing for multiple instances
-- Use CDN for static files
 
 ## Contributing
 
-Contributions welcome! Please read our contributing guidelines.
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-MIT License - see LICENSE file
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Acknowledgments
 
-- LTLAB Big Data Fellowship
-- Kenya Tourism Board
-- Open-source community
+- LangChain for the amazing framework
+- HuggingFace for the language models
+- Kenya Wildlife Service for destination information
 
-## Support
+## Contact
 
-- Issues: GitHub Issues
-- Email: augoamos@gmail.com
+Amos Augo - augoamos@gmail.com
+
+Project Link: [https://github.com/augo-amos/kenya-travel-agent](https://github.com/augo-amos/kenya-travel-agent)
+
+
