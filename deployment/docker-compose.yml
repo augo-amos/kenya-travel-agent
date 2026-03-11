@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # Flask API backend
+  api:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile
+    container_name: kenya-travel-api
+    ports:
+      - "5000:5000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - FLASK_ENV=production
+      - FLASK_SECRET_KEY=${FLASK_SECRET_KEY}
+    volumes:
+      - ../data:/app/data
+      - ../models:/app/models
+    command: python deployment/flask_api.py
+    networks:
+      - travel-network
+    restart: unless-stopped
+
+  # Streamlit frontend
+  streamlit:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile
+    container_name: kenya-travel-streamlit
+    ports:
+      - "8501:8501"
+    environment:
+      - API_URL=http://api:5000
+    volumes:
+      - ../data:/app/data
+    command: streamlit run deployment/streamlit_app.py --server.port=8501 --server.address=0.0.0.0
+    networks:
+      - travel-network
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  # Optional: Redis for session management
+  redis:
+    image: redis:alpine
+    container_name: travel-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - travel-network
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
+networks:
+  travel-network:
+    driver: bridge
+
+volumes:
+  redis-data:
